@@ -1,6 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback, useState } from "react";
-import { ActivityIndicator, FlatList, View, Text, TouchableOpacity, Image } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  RefreshControl,
+} from "react-native";
 
 import MainLayout from "./MainLayout";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -15,13 +23,18 @@ const HomeScreen = () => {
   const [selectedCoin, setSelectedCoin] = useState<Coin | undefined>(undefined);
   const {
     holdings,
-    // loadingGetHoldings,
+    loadingGetHoldings,
     // errorGetHoldings,
     coins,
     loadingGetCoinMarket,
     // errorGetCoinMarket,
   } = useAppSelector((state) => state.market);
+
   const dispatch = useAppDispatch();
+
+  const totalWallet = holdings.reduce((a, b) => a + (b.total || 0), 0);
+  const valueChange = holdings.reduce((a, b) => a + (b.holdingValueChange7d || 0), 0);
+  const percentageChange = (valueChange / (totalWallet - valueChange)) * 100;
 
   useFocusEffect(
     useCallback(() => {
@@ -30,18 +43,16 @@ const HomeScreen = () => {
     }, [])
   );
 
-  const totalWallet = holdings.reduce((a, b) => a + (b.total || 0), 0);
-  const valueChange = holdings.reduce((a, b) => a + (b.holdingValueChange7d || 0), 0);
-  const percentageChange = (valueChange / (totalWallet - valueChange)) * 100;
-
   function renderWalletInfoSection() {
     return (
       <View
         style={{
+          paddingTop: SIZES.padding,
           paddingHorizontal: SIZES.padding,
-          borderBottomLeftRadius: 25,
-          borderBottomRightRadius: 25,
-          backgroundColor: COLORS.gray,
+          borderRadius: 25,
+          borderWidth: 1,
+          borderColor: COLORS.gray,
+          backgroundColor: COLORS.black,
         }}
       >
         {/* Balance Info */}
@@ -49,9 +60,6 @@ const HomeScreen = () => {
           title={"Your Wallet"}
           displayAmount={totalWallet}
           changePercentage={percentageChange}
-          containerStyle={{
-            marginTop: 50,
-          }}
         />
         {/* Buttons */}
         <View
@@ -87,42 +95,28 @@ const HomeScreen = () => {
     );
   }
 
+  const onRefresh = () => {
+    dispatch(getHoldingsRequested({ holdings: mockHoldings }));
+    dispatch(getCoinMarketRequested({}));
+  };
+
   return (
     <MainLayout>
       <View style={{ flex: 1, backgroundColor: COLORS.black }}>
         {/* Header - Wallet Info */}
         {renderWalletInfoSection()}
         {/* Chart */}
-        {loadingGetCoinMarket ? (
-          <View
-            style={{
-              height: 150,
-              marginTop: SIZES.padding * 2,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ActivityIndicator />
-          </View>
-        ) : (
-          <Chart
-            containerStyle={{
-              marginTop: SIZES.padding * 2,
-            }}
-            chartPrices={
-              selectedCoin ? selectedCoin?.sparkline_in_7d?.price : coins[0]?.sparkline_in_7d.price
-            }
-          />
-        )}
-
+        <Chart
+          containerStyle={{ marginTop: SIZES.padding * 2 }}
+          chartPrices={
+            selectedCoin ? selectedCoin?.sparkline_in_7d?.price : coins[0]?.sparkline_in_7d.price
+          }
+        />
         {/* Top Cryptocurrency */}
         <FlatList
           data={coins}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{
-            marginTop: 30,
-            paddingHorizontal: SIZES.padding,
-          }}
+          contentContainerStyle={{ marginTop: 30, paddingHorizontal: SIZES.padding }}
           ListHeaderComponent={
             <View style={{ marginBottom: SIZES.radius }}>
               <Text style={[FONTS.h3, { fontSize: 18, color: COLORS.white }]}>
@@ -189,13 +183,7 @@ const HomeScreen = () => {
               </TouchableOpacity>
             );
           }}
-          ListFooterComponent={
-            <View
-              style={{
-                marginBottom: 50,
-              }}
-            />
-          }
+          ListFooterComponent={<View style={{ marginBottom: 50 }} />}
         />
       </View>
     </MainLayout>

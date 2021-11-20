@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Provider } from "react-redux";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
@@ -7,8 +7,22 @@ import { useFonts } from "expo-font";
 import Tabs from "./navigation/tabs";
 import { store } from "./store";
 import { StatusBar } from "react-native";
+import { COLORS, FONTS } from "./constants";
+import { useAppDispatch, useAppSelector } from "./hooks";
+import { getCoinMarketRequested, getHoldingsRequested } from "./store/market/slice";
+import { mockHoldings } from "./constants/mock";
+import { AppStack } from "./navigation";
 
-const Stack = createStackNavigator();
+const Root = () => {
+  return (
+    <>
+      <StatusBar barStyle={"light-content"} />
+      <NavigationContainer>
+        <AppStack />
+      </NavigationContainer>
+    </>
+  );
+};
 
 const App = () => {
   const [loaded] = useFonts({
@@ -37,12 +51,7 @@ const App = () => {
   }
   return (
     <Provider store={store}>
-      <StatusBar barStyle={"light-content"} />
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={"MainLayout"}>
-          <Stack.Screen name="MainLayout" component={Tabs} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <Root />
     </Provider>
   );
 };

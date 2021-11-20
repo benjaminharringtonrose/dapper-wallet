@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef } from 'react';
-import { View, Animated } from 'react-native';
+import React, { useEffect, useRef } from "react";
+import { View, Animated } from "react-native";
 
-import { IconTextButton } from '../components';
-import { COLORS, SIZES, icons } from '../constants';
-import { useAppSelector } from '../hooks';
+import { IconTextButton } from "../components";
+import { COLORS, SIZES, icons } from "../constants";
+import { useAppSelector } from "../hooks";
 
 const MainLayout = ({ children }: { children: JSX.Element }) => {
   const modalAnimatedValue = useRef(new Animated.Value(0)).current;
-  const { isTradeModalVisible } = useAppSelector(state => state.tabs);
+  const { isTradeModalVisible } = useAppSelector((state) => state.tabs);
 
   useEffect(() => {
     if (isTradeModalVisible) {
@@ -28,7 +28,7 @@ const MainLayout = ({ children }: { children: JSX.Element }) => {
 
   const modalY = modalAnimatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [SIZES.height, SIZES.height - 280],
+    outputRange: [SIZES.height, SIZES.height - 375],
   });
 
   return (
@@ -37,7 +37,7 @@ const MainLayout = ({ children }: { children: JSX.Element }) => {
       {isTradeModalVisible && (
         <Animated.View
           style={{
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             bottom: 0,
             left: 0,
@@ -49,24 +49,27 @@ const MainLayout = ({ children }: { children: JSX.Element }) => {
       )}
       <Animated.View
         style={{
-          position: 'absolute',
+          position: "absolute",
           top: modalY,
-          width: '100%',
+          width: "100%",
           padding: SIZES.padding,
           backgroundColor: COLORS.primary,
-        }}>
+          borderTopLeftRadius: 25,
+          borderTopRightRadius: 25,
+        }}
+      >
         <IconTextButton
-          label={'Transfer'}
+          label={"Transfer"}
           icon={icons.send}
-          onPress={() => console.log('Transfer')}
+          onPress={() => console.log("Transfer")}
         />
         <IconTextButton
-          label={'Withdraw'}
+          label={"Withdraw"}
           icon={icons.withdraw}
           containerStyle={{
             marginTop: SIZES.base,
           }}
-          onPress={() => console.log('Withdraw')}
+          onPress={() => console.log("Withdraw")}
         />
       </Animated.View>
     </View>

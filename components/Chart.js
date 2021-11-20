@@ -23,7 +23,7 @@ const Chart = ({ containerStyle, chartPrices }) => {
         };
       })
     : [];
-  const points = monotoneCubicInterpolation({ data: data, range: 40 });
+  const points = monotoneCubicInterpolation({ data, range: 40 });
 
   const formatUSD = (value) => {
     "worklet";
@@ -80,7 +80,16 @@ const Chart = ({ containerStyle, chartPrices }) => {
   console.log(getYAxisLabelValues());
 
   return (
-    <View style={[containerStyle]}>
+    <View
+      style={[
+        containerStyle,
+        {
+          borderColor: COLORS.gray1,
+          borderWidth: 1,
+          borderRadius: 25,
+        },
+      ]}
+    >
       {/* Y-Axis Label */}
       <View
         style={{
@@ -94,7 +103,7 @@ const Chart = ({ containerStyle, chartPrices }) => {
         {/* getYAxisLabelValues */}
         {getYAxisLabelValues().map((item, index) => {
           return (
-            <Text key={index} style={[FONTS.body4, { color: COLORS.lightGray3 }]}>
+            <Text key={index} style={[FONTS.body5, { color: COLORS.lightGray3 }]}>
               {item}
             </Text>
           );
