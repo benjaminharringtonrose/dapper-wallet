@@ -1,0 +1,16 @@
+import React from "react";
+import { View, Text } from "react-native";
+
+import MainLayout from "./MainLayout";
+
+const PortfolioScreen = () => {
+  return (
+    <MainLayout>
+      <View>
+        <Text>Portfolio</Text>
+      </View>
+    </MainLayout>
+  );
+};
+
+export default PortfolioScreen;
