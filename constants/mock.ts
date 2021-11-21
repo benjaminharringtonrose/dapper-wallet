@@ -1,28 +1,28 @@
 export const mockHoldings = [
   {
-    id: 'bitcoin',
+    id: "bitcoin",
     qty: 888,
   },
   {
-    id: 'ethereum',
+    id: "ethereum",
     qty: 188,
   },
   {
-    id: 'dogecoin',
+    id: "dogecoin",
     qty: 88888,
   },
 ];
 
 export const mockProfile = {
-  id: 8888888,
-  email: 'byprogrammers@gmail.com',
+  id: "jhkhh34g3y453u4t87",
+  email: "dangbenny@gmail.com",
 };
 
 export const mockSettings = {
-  launchScreen: 'Home',
-  currency: 'USD',
-  appearance: 'Dark',
-  language: 'English',
+  launchScreen: "Home",
+  currency: "USD",
+  appearance: "Dark",
+  language: "English",
   faceId: true,
 };
 

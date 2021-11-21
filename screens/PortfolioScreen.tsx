@@ -153,6 +153,7 @@ const PortfolioScreen = () => {
               </TouchableOpacity>
             );
           }}
+          ListFooterComponent={<View style={{ marginBottom: 50 }} />}
         />
       </View>
     </MainLayout>

@@ -43,3 +43,10 @@ export interface Coin {
   sparkline_in_7d: { price: any[] };
   price_change_percentage_7d_in_currency: number;
 }
+
+export interface MeasureLayout {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
