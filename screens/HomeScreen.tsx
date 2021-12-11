@@ -13,7 +13,9 @@ import {
 import MainLayout from "./MainLayout";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { getCoinMarketRequested, getHoldingsRequested } from "../store/market/slice";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+
 import { mockHoldings } from "../constants/mock";
 import { COLORS, FONTS, icons, SIZES } from "../constants";
 import { BalanceInfo, Chart, IconTextButton } from "../components";
@@ -30,11 +32,23 @@ const HomeScreen = () => {
     // errorGetCoinMarket,
   } = useAppSelector((state) => state.market);
 
+  const navigation = useNavigation();
   const dispatch = useAppDispatch();
 
   const totalWallet = holdings.reduce((a, b) => a + (b.total || 0), 0);
   const valueChange = holdings.reduce((a, b) => a + (b.holdingValueChange7d || 0), 0);
   const percentageChange = (valueChange / (totalWallet - valueChange)) * 100;
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: "DapperWallet",
+      headerRight: () => (
+        <TouchableOpacity>
+          <Ionicons name={"wallet"} size={32} color={COLORS.white} onPress={() => {}} />
+        </TouchableOpacity>
+      ),
+    });
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -55,7 +69,7 @@ const HomeScreen = () => {
           backgroundColor: COLORS.black,
         }}
       >
-        {/* Balance Info */}
+        Balance Info
         <BalanceInfo
           title={"Your Wallet"}
           displayAmount={totalWallet}
@@ -104,7 +118,7 @@ const HomeScreen = () => {
     <MainLayout>
       <View style={{ flex: 1, backgroundColor: COLORS.black }}>
         {/* Header - Wallet Info */}
-        {renderWalletInfoSection()}
+        {/* {renderWalletInfoSection()} */}
         {/* Chart */}
         <Chart
           containerStyle={{ marginTop: SIZES.padding * 2 }}

@@ -3,6 +3,7 @@ import { Provider } from "react-redux";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { useFonts } from "expo-font";
+import { Host } from "react-native-portalize";
 
 import Tabs from "./navigation/tabs";
 import { store } from "./store";
@@ -51,7 +52,9 @@ const App = () => {
   }
   return (
     <Provider store={store}>
-      <Root />
+      <Host>
+        <Root />
+      </Host>
     </Provider>
   );
 };

@@ -1,14 +1,31 @@
 import React from "react";
-import { BottomTabBarButtonProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import {
+  BottomTabBarButtonProps,
+  BottomTabNavigationOptions,
+  createBottomTabNavigator,
+} from "@react-navigation/bottom-tabs";
 
 import { Home, Portfolio, Market, Profile } from "../screens";
 import { TabIcon } from "../components";
-import { COLORS, icons } from "../constants";
+import { COLORS, FONTS, icons } from "../constants";
 import { TouchableOpacity } from "react-native";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { setTradeModalVisibility } from "../store/tab/slice";
 
 const Tab = createBottomTabNavigator();
+
+const defaultNavigationOptions: BottomTabNavigationOptions = {
+  headerTitle: "DapperWallet",
+  headerTitleStyle: [FONTS.h2, { color: COLORS.white }],
+  headerStyle: {
+    backgroundColor: COLORS.black,
+    shadowRadius: 0,
+    shadowOffset: {
+      height: 0,
+      width: 0,
+    },
+  },
+};
 
 const Tabs = () => {
   const dispatch = useAppDispatch();
@@ -16,6 +33,7 @@ const Tabs = () => {
   return (
     <Tab.Navigator
       screenOptions={{
+        ...defaultNavigationOptions,
         tabBarShowLabel: false,
         tabBarStyle: {
           height: 140,
@@ -28,7 +46,7 @@ const Tabs = () => {
         name="Home"
         component={Home}
         options={{
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: ({ focused }) =>
             !isTradeModalVisible && <TabIcon focused={focused} icon={icons.home} label={"Home"} />,
         }}
@@ -44,10 +62,10 @@ const Tabs = () => {
         name="Portfolio"
         component={Portfolio}
         options={{
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: ({ focused }) =>
             !isTradeModalVisible && (
-              <TabIcon focused={focused} icon={icons.briefcase} label={"Portfolio"} />
+              <TabIcon focused={focused} icon={icons.briefcase} label={"Watch"} />
             ),
         }}
         listeners={{
@@ -58,11 +76,11 @@ const Tabs = () => {
           },
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Trade"
         component={Home}
         options={{
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: ({ focused }) => (
             <TabIcon
               focused={focused}
@@ -86,12 +104,12 @@ const Tabs = () => {
             />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="Market"
         component={Market}
         options={{
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: ({ focused }) =>
             !isTradeModalVisible && (
               <TabIcon focused={focused} icon={icons.market} label={"Market"} />
@@ -109,7 +127,7 @@ const Tabs = () => {
         name="Profile"
         component={Profile}
         options={{
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: ({ focused }) =>
             !isTradeModalVisible && (
               <TabIcon focused={focused} icon={icons.profile} label={"Profile"} />

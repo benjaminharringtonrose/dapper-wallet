@@ -77,8 +77,6 @@ const Chart = ({ containerStyle, chartPrices }) => {
     }
   };
 
-  console.log(getYAxisLabelValues());
-
   return (
     <View
       style={[

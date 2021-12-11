@@ -8,16 +8,7 @@ export const AppStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        title: "DapperWallet",
-        headerTitleStyle: [FONTS.h2, { color: COLORS.white }],
-        headerStyle: {
-          backgroundColor: COLORS.black,
-          shadowRadius: 0,
-          shadowOffset: {
-            height: 0,
-            width: 0,
-          },
-        },
+        headerShown: false,
       }}
       initialRouteName={"MainLayout"}
     >

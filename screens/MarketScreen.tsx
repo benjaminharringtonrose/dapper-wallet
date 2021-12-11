@@ -8,7 +8,6 @@ import MainLayout from "./MainLayout";
 import { HeaderBar, TextButton } from "../components";
 import { MeasureLayout } from "../types";
 import { constants, COLORS, FONTS, SIZES, icons } from "../constants";
-import { measure } from "react-native-reanimated";
 
 const marketTabs = constants.marketTabs.map((marketTab) => ({
   ...marketTab,

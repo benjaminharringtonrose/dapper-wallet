@@ -8,24 +8,50 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
-import { useAppDispatch, useAppSelector } from "../hooks";
+import * as tf from "@tensorflow/tfjs";
+import { Formik, FormikProps } from "formik";
+import * as Yup from "yup";
 
+import { useAppDispatch, useAppSelector } from "../hooks";
 import MainLayout from "./MainLayout";
 import { BalanceInfo, Chart } from "../components";
 import { SIZES, COLORS, FONTS, mockData, icons } from "../constants";
 import { useFocusEffect } from "@react-navigation/native";
 import { getHoldingsRequested } from "../store/market/slice";
-import { Coin } from "../types";
 import { mockHoldings } from "../constants/mock";
+import { createModel, generateData, trainModel } from "../util/tensor";
+import { FormDropListPicker } from "../components/FormDropListPicker";
+import { setLearningRate, setModelOptions, setOptimizer } from "../store/model/slice";
+import { FormInput } from "../components/FormInput";
+import { Button } from "../components/Button";
+
+interface ModelFormProps {
+  optimizer?: string;
+  learningRate?: number;
+  epochs?: number;
+}
 
 const PortfolioScreen = () => {
+  const formRef = React.useRef<FormikProps<ModelFormProps>>(null);
+
+  const [input, label] = generateData();
+  const optimizer = useAppSelector((state) => state.model.optimizer);
+  const learningRate = useAppSelector((state) => state.model.learningRate);
+  const epochs = useAppSelector((state) => state.model.epochs);
+
+  const [modelReady, setModelReady] = useState(false);
+  const [target, setTarget] = useState(0);
+  const [prediction, setPrediction] = useState("");
+  const [targetPredict, setTargetPredict] = useState(target * 2 + 5);
+  const [model, setModel] = useState(createModel({ learningRate, optimizer }));
+
   const [selectedCoin, setSelectedCoin] = useState<any>(undefined);
   const { holdings, loadingGetHoldings } = useAppSelector((state) => state.market);
   const dispatch = useAppDispatch();
 
-  const totalWallet = holdings.reduce((a, b) => a + (b.total || 0), 0);
-  const valueChange = holdings.reduce((a, b) => a + (b.holdingValueChange7d || 0), 0);
-  const percentageChange = (valueChange / (totalWallet - valueChange)) * 100;
+  // const totalWallet = holdings.reduce((a, b) => a + (b.total || 0), 0);
+  // const valueChange = holdings.reduce((a, b) => a + (b.holdingValueChange7d || 0), 0);
+  // const percentageChange = (valueChange / (totalWallet - valueChange)) * 100;
 
   useFocusEffect(
     useCallback(() => {
@@ -33,38 +59,60 @@ const PortfolioScreen = () => {
     }, [])
   );
 
-  function renderCurrentBalanceSection() {
-    return (
-      <View
-        style={{
-          paddingTop: SIZES.padding,
-          paddingHorizontal: SIZES.padding,
-          borderRadius: 25,
-          borderWidth: 1,
-          borderColor: COLORS.gray,
-          backgroundColor: COLORS.black,
-        }}
-      >
-        <Text style={[FONTS.h1, { color: COLORS.white }]}>{"Portfolio"}</Text>
-        <BalanceInfo
-          title={"Current Balance"}
-          displayAmount={totalWallet}
-          changePercentage={percentageChange}
-          containerStyle={{ marginTop: SIZES.radius, marginBottom: SIZES.padding }}
-        />
-      </View>
-    );
-  }
-
   const chartPrices = selectedCoin
     ? selectedCoin?.sparklineIn7d?.value
     : holdings[0]?.sparklineIn7d?.value;
+
+  // ------------------------------MODEL-----------------------------------------------
+
+  const handleChangeTarget = (e) => {
+    setTarget(Number(e.target.value));
+  };
+
+  useEffect(() => {
+    console.log("triggered useEffect");
+    setTarget(0);
+    setPrediction("0");
+    setModel(createModel({ learningRate, optimizer }));
+  }, [learningRate, optimizer]);
+
+  useEffect(() => {
+    console.log("triggered useEffect");
+    setTargetPredict(target * 2 + 5);
+    model
+      .predict(tf.tensor([target]))
+      .data()
+      .then((data) => setPrediction(parseFloat(data).toFixed(2).toString()));
+  }, [target]);
+
+  // -----------------------------------------------------------------------
+
+  const onSubmit = (values: ModelFormProps) => {
+    console.log("VALUES: ", values);
+    dispatch(
+      setModelOptions({
+        optimizer: values.optimizer || "adam",
+        learningRate: values.learningRate || 0.1,
+        epochs: values.epochs || 50,
+      })
+    );
+    setModelReady(false);
+    trainModel(model, input, label, epochs)
+      .then(() => setModelReady(true))
+      .catch((e) => console.log(e));
+  };
+
+  const flattenedX = [].concat(...input.arraySync());
+  const flattenedY = [].concat(...label.arraySync());
+
+  console.log(optimizer);
 
   return (
     <MainLayout>
       <View style={{ flex: 1, backgroundColor: COLORS.black }}>
         {/* Header - Current Balance */}
-        {renderCurrentBalanceSection()}
+        {/* {renderCurrentBalanceSection()} */}
+        {/* Data */}
         {/* Chart */}
         <Chart containerStyle={{ marginTop: SIZES.radius }} chartPrices={chartPrices} />
         {/* Assets */}
@@ -155,6 +203,53 @@ const PortfolioScreen = () => {
           }}
           ListFooterComponent={<View style={{ marginBottom: 50 }} />}
         />
+        <View style={{ flex: 1, flexDirection: "row" }}>
+          {flattenedX.map((x) => (
+            <Text key={x} style={{ color: COLORS.white, paddingRight: 10 }}>
+              {x}
+            </Text>
+          ))}
+        </View>
+        <View style={{ flex: 1, flexDirection: "row" }}>
+          {flattenedY.map((y) => (
+            <Text key={y} style={{ color: COLORS.white, paddingRight: 10 }}>
+              {y}
+            </Text>
+          ))}
+        </View>
+        <Formik
+          innerRef={formRef}
+          initialValues={{ optimizer, learningRate, epochs }}
+          onSubmit={onSubmit}
+        >
+          {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, touched, errors }) => (
+            <View>
+              <FormDropListPicker
+                title={"Select Optimizer"}
+                label={"Optimizer:"}
+                value={values.optimizer}
+                items={["sgd", "adam", "adagrad", "adadelta", "momentum", "rmsprop"]}
+                onSelect={(optimizer) => setFieldValue("optimizer", optimizer)}
+                style={{ marginVertical: SIZES.base }}
+                error={errors.optimizer}
+                touched={touched.optimizer}
+              />
+              <FormInput
+                label={"Learning Rate:"}
+                value={values.learningRate?.toString()}
+                onChangeText={handleChange("learningRate")}
+                onBlur={handleBlur("learningRate")}
+              />
+              <FormInput
+                label={"Epochs:"}
+                value={values.epochs?.toString()}
+                onChangeText={handleChange("epochs")}
+                onBlur={handleBlur("epochs")}
+              />
+              <Button label={"Train Model"} onPress={() => handleSubmit()} />
+            </View>
+          )}
+        </Formik>
       </View>
     </MainLayout>
   );
