@@ -29,7 +29,12 @@ export function createModel({ units = 1, learningRate = 0.01, optimizer = "adam"
   return model;
 }
 
-export async function trainModel(model, input, label, epochs = 150) {
+export async function trainModel(
+  model: tf.Sequential,
+  input: tf.Tensor<tf.Rank>,
+  label: tf.Tensor<tf.Rank>,
+  epochs = 150
+) {
   await model.fit(input, label, { epochs });
 }
 

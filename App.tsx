@@ -1,9 +1,11 @@
+import "@tensorflow/tfjs-react-native";
 import React, { useEffect } from "react";
 import { Provider } from "react-redux";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Host } from "react-native-portalize";
+import * as tf from "@tensorflow/tfjs";
 
 import Tabs from "./navigation/tabs";
 import { store } from "./store";
@@ -13,8 +15,16 @@ import { useAppDispatch, useAppSelector } from "./hooks";
 import { getCoinMarketRequested, getHoldingsRequested } from "./store/market/slice";
 import { mockHoldings } from "./constants/mock";
 import { AppStack } from "./navigation";
+import { setModelInitialized } from "./store/model/slice";
 
 const Root = () => {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    (async () => {
+      await tf.ready();
+      dispatch(setModelInitialized({ initialized: true }));
+    })();
+  }, []);
   return (
     <>
       <StatusBar barStyle={"light-content"} />

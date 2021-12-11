@@ -4,12 +4,14 @@ export interface ModelState {
   optimizer?: string;
   learningRate?: number;
   epochs?: number;
+  initialized: boolean;
 }
 
 const initialState: ModelState = {
   optimizer: "adam",
   learningRate: 0.01,
   epochs: 50,
+  initialized: false,
 };
 
 export type SetOptimizer = PayloadAction<{ optimizer: string }>;
@@ -20,6 +22,7 @@ export type SetModelOptions = PayloadAction<{
   learningRate: number;
   epochs: number;
 }>;
+export type SetModelInitialized = PayloadAction<{ initialized: boolean }>;
 
 const modelSlice = createSlice({
   name: "model",
@@ -43,9 +46,19 @@ const modelSlice = createSlice({
       state.learningRate = learningRate;
       state.epochs = epochs;
     },
+    setModelInitialized: (state, action: SetModelInitialized) => {
+      const { initialized } = action.payload;
+      state.initialized = initialized;
+    },
   },
 });
 
-export const { setOptimizer, setLearningRate, setEpochs, setModelOptions } = modelSlice.actions;
+export const {
+  setOptimizer,
+  setLearningRate,
+  setEpochs,
+  setModelOptions,
+  setModelInitialized,
+} = modelSlice.actions;
 
 export default modelSlice.reducer;

@@ -46,7 +46,7 @@ export const Button = (props: ButtonProps) => {
       ]}
     >
       {props.loading ? (
-        <ActivityIndicator color={type === "contained" ? COLORS.lightGray2 : COLORS.gray1} />
+        <ActivityIndicator color={type === "contained" ? COLORS.white : COLORS.white} />
       ) : (
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           {/* {!!props.prefixIcon && (
