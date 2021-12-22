@@ -7,6 +7,10 @@ module.exports = (async () => {
     resolver: {
       // Add bin to assetExts
       assetExts: [...assetExts, "bin"],
+      extraNodeModules: {
+        crypto: require.resolve("crypto-browserify"),
+        stream: require.resolve("stream-browserify"),
+      },
     },
   };
 })();

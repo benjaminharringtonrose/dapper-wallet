@@ -9,6 +9,11 @@ import {
   Image,
   RefreshControl,
 } from "react-native";
+import {
+  useWalletConnect,
+  WalletConnectProviderProps,
+  WalletConnectStorageOptions,
+} from "@walletconnect/react-native-dapp";
 
 import MainLayout from "./MainLayout";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -34,6 +39,7 @@ const HomeScreen = () => {
 
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
+  const connector = useWalletConnect();
 
   const totalWallet = holdings.reduce((a, b) => a + (b.total || 0), 0);
   const valueChange = holdings.reduce((a, b) => a + (b.holdingValueChange7d || 0), 0);
@@ -44,7 +50,7 @@ const HomeScreen = () => {
       title: "DapperWallet",
       headerRight: () => (
         <TouchableOpacity>
-          <Ionicons name={"wallet"} size={32} color={COLORS.white} onPress={() => {}} />
+          <Ionicons name={"wallet"} size={32} color={COLORS.white} onPress={connect} />
         </TouchableOpacity>
       ),
     });
@@ -56,6 +62,16 @@ const HomeScreen = () => {
       dispatch(getCoinMarketRequested({}));
     }, [])
   );
+
+  const connect = async () => {
+    try {
+      await connector.connect();
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  console.log(connector.connected);
 
   function renderWalletInfoSection() {
     return (
@@ -69,7 +85,7 @@ const HomeScreen = () => {
           backgroundColor: COLORS.black,
         }}
       >
-        Balance Info
+        {/* Balance Info */}
         <BalanceInfo
           title={"Your Wallet"}
           displayAmount={totalWallet}
